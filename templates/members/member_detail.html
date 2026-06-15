@@ -1,0 +1,246 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="page-header">
+    <a href="{% url 'member_list' %}" class="btn-back"><i class="fas fa-arrow-left"></i></a>
+    <h1>Member Details</h1>
+</div>
+
+<!-- Profile Card -->
+<div class="card" style="text-align:center; padding-top:4px;">
+    <div class="card-body pb-3">
+        <!-- Profile photo — opens lightbox -->
+        {% if member.profile_photo %}
+            <img src="{{ member.profile_photo.url }}"
+                 id="profile-thumb"
+                 onclick="openPhoto(this.src)"
+                 style="width:88px; height:88px; border-radius:50%; object-fit:cover;
+                        border:3px solid #e2e8f0; cursor:pointer; margin-bottom:10px;
+                        transition: transform 0.15s;"
+                 onmouseover="this.style.transform='scale(1.04)'"
+                 onmouseout="this.style.transform='scale(1)'"
+                 alt="{{ member.name }}">
+        {% else %}
+            <div style="width:88px; height:88px; border-radius:50%; background:#eff6ff;
+                        border:3px solid #e2e8f0; display:flex; align-items:center;
+                        justify-content:center; margin:0 auto 10px;">
+                <i class="fas fa-user" style="color:#2563eb; font-size:32px;"></i>
+            </div>
+        {% endif %}
+
+        <div style="font-size:18px; font-weight:700; color:#0f172a;">
+            {{ member.name }}
+            {% if member.is_birthday_today %}
+                <span title="Birthday today!"> 🎂</span>
+            {% endif %}
+        </div>
+        <div style="margin-top:6px;">
+            <span class="badge {% if member.status == 'active' %}bg-success{% elif member.status == 'expired' %}bg-danger{% elif member.status == 'paused' %}bg-warning{% endif %}"
+                  style="font-size:12px; padding:4px 10px;">
+                {{ member.status|title }}
+            </span>
+        </div>
+        <div style="font-size:12px; color:#94a3b8; margin-top:6px;">
+            Joined {{ member.joined_at|date:"d M Y" }}
+        </div>
+    </div>
+</div>
+
+<!-- Current Membership -->
+{% if member.active_membership %}
+<div class="card">
+    <div class="card-body">
+        <div class="section-label">Current Plan</div>
+        <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+            <div>
+                <div style="font-weight:600; font-size:15px; color:#0f172a;">{{ member.active_membership.plan.name }}</div>
+                <div style="font-size:12px; color:#64748b; margin-top:3px;">
+                    {{ member.active_membership.start_date|date:"d M Y" }} → {{ member.active_membership.end_date|date:"d M Y" }}
+                </div>
+            </div>
+            {% if member.days_until_expiry is not None %}
+            <div style="text-align:right;">
+                <div style="font-size:20px; font-weight:700;
+                            color:{% if member.days_until_expiry <= 3 %}#dc2626{% elif member.days_until_expiry <= 7 %}#d97706{% else %}#16a34a{% endif %};">
+                    {{ member.days_until_expiry }}
+                </div>
+                <div style="font-size:11px; color:#94a3b8;">days left</div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Quick Actions -->
+<div class="card">
+    <div class="card-body">
+        <div class="section-label">Actions</div>
+        <div class="row g-2">
+            <div class="col-12">
+                <a href="{% url 'member_renew' member.pk %}" class="btn btn-primary w-100">
+                    <i class="fas fa-sync"></i> Renew & Record Payment
+                </a>
+            </div>
+            <div class="col-6">
+                <a href="sms:{{ member.phone }}" class="btn btn-outline-secondary w-100">
+                    <i class="fas fa-sms"></i> SMS
+                </a>
+            </div>
+            <div class="col-6">
+                <a href="https://wa.me/91{{ member.phone }}" target="_blank" class="btn btn-outline-secondary w-100">
+                    <i class="fab fa-whatsapp"></i> WhatsApp
+                </a>
+            </div>
+            <div class="col-12">
+                <a href="{% url 'member_edit' member.pk %}" class="btn btn-outline-secondary w-100">
+                    <i class="fas fa-edit"></i> Edit Profile
+                </a>
+            </div>
+            <div class="col-12">
+                <a href="{% url 'member_archive' member.pk %}" class="btn btn-outline-secondary w-100"
+                   style="color:#d97706; border-color:#d97706;">
+                    <i class="fas fa-archive"></i> Archive Member
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Send Message -->
+<div class="card">
+    <div class="card-body">
+        <div class="section-label">Send Message</div>
+        <select id="templateSelect" class="form-select mb-2">
+            <option value="">Choose a template…</option>
+            {% for template in templates %}
+            <option value="{{ template.pk }}" data-body="{{ template.body }}">{{ template.name }}</option>
+            {% endfor %}
+        </select>
+        <textarea id="messagePreview" class="form-control mb-2" rows="3"
+                  placeholder="Select a template to preview the message…"
+                  style="resize:none; font-size:13px;"></textarea>
+        <div class="row g-2">
+            <div class="col-6">
+                <a id="smsLink" href="#" class="btn btn-outline-secondary w-100">
+                    <i class="fas fa-sms"></i> Send SMS
+                </a>
+            </div>
+            <div class="col-6">
+                <a id="whatsappLink" href="#" target="_blank" class="btn btn-success w-100">
+                    <i class="fab fa-whatsapp"></i> WhatsApp
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Payment History -->
+<div class="card">
+    <div class="card-body">
+        <div class="section-label">Payment History</div>
+        {% for payment in payments %}
+        <div style="display:flex; justify-content:space-between; align-items:center;
+                    padding:9px 0; border-bottom:1px solid #f1f5f9;">
+            <div>
+                <span style="font-weight:600; color:#0f172a;">₹{{ payment.amount }}</span>
+                <span class="badge bg-light ms-2">{{ payment.method }}</span>
+                {% if payment.notes %}
+                <div style="font-size:11px; color:#94a3b8; margin-top:2px;">{{ payment.notes }}</div>
+                {% endif %}
+            </div>
+            <div style="display:flex; align-items:center; gap:8px;">
+                <span style="font-size:12px; color:#94a3b8;">{{ payment.date|date:"d M Y" }}</span>
+                <a href="{% url 'payment_edit' payment.pk %}" style="color:#64748b; font-size:13px;" title="Edit">
+                    <i class="fas fa-pen"></i>
+                </a>
+                <a href="{% url 'payment_delete_confirm' payment.pk %}" style="color:#dc2626; font-size:13px;" title="Delete">
+                    <i class="fas fa-trash"></i>
+                </a>
+            </div>
+        </div>
+        {% empty %}
+        <p style="color:#94a3b8; font-size:13px; margin:0;">No payments recorded.</p>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Contact Info -->
+<div class="card">
+    <div class="card-body">
+        <div class="section-label">Contact</div>
+        <div style="display:flex; flex-direction:column; gap:8px;">
+            <div style="display:flex; gap:8px;">
+                <span style="width:60px; font-size:12px; color:#94a3b8; flex-shrink:0;">Phone</span>
+                <span style="font-size:13px; font-weight:500;">{{ member.phone }}</span>
+            </div>
+            {% if member.address %}
+            <div style="display:flex; gap:8px;">
+                <span style="width:60px; font-size:12px; color:#94a3b8; flex-shrink:0;">Address</span>
+                <span style="font-size:13px;">{{ member.address }}</span>
+            </div>
+            {% endif %}
+            {% if member.dob %}
+            <div style="display:flex; gap:8px;">
+                <span style="width:60px; font-size:12px; color:#94a3b8; flex-shrink:0;">DOB</span>
+                <span style="font-size:13px;">{{ member.dob|date:"d M Y" }}</span>
+            </div>
+            {% endif %}
+            {% if member.notes %}
+            <div style="display:flex; gap:8px;">
+                <span style="width:60px; font-size:12px; color:#94a3b8; flex-shrink:0;">Notes</span>
+                <span style="font-size:13px;">{{ member.notes }}</span>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Photo Lightbox -->
+<div id="photo-lightbox"
+     onclick="closePhoto()"
+     style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.85);
+            z-index:9999; align-items:center; justify-content:center; cursor:zoom-out;">
+    <img id="lightbox-img" src="" style="max-width:90vw; max-height:85vh; border-radius:12px; object-fit:contain;">
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+const memberData = JSON.parse('{{ member_data_json|safe }}');
+
+document.getElementById('templateSelect').addEventListener('change', function() {
+    const body = this.options[this.selectedIndex].dataset.body;
+    const preview = document.getElementById('messagePreview');
+    if (body) {
+        const message = body
+            .replace('{name}', memberData.name)
+            .replace('{days}', memberData.days)
+            .replace('{expiry_date}', memberData.expiry_date)
+            .replace('{amount}', memberData.amount)
+            .replace('{plan}', memberData.plan)
+            .replace('{announcement}', '');
+        preview.value = message;
+        const enc = encodeURIComponent(message);
+        document.getElementById('smsLink').href = `sms:{{ member.phone }}?body=${enc}`;
+        document.getElementById('whatsappLink').href = `https://wa.me/91{{ member.phone }}?text=${enc}`;
+    } else {
+        preview.value = '';
+        document.getElementById('smsLink').href = '#';
+        document.getElementById('whatsappLink').href = '#';
+    }
+});
+
+function openPhoto(src) {
+    const lb = document.getElementById('photo-lightbox');
+    document.getElementById('lightbox-img').src = src;
+    lb.style.display = 'flex';
+}
+function closePhoto() {
+    document.getElementById('photo-lightbox').style.display = 'none';
+}
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closePhoto(); });
+</script>
+{% endblock %}

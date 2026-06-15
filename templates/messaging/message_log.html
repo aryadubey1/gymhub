@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="page-header">
+    <a href="{% url 'bulk_message' %}" class="btn-back"><i class="fas fa-chevron-left"></i></a>
+    <h1>Message Log</h1>
+</div>
+
+{% if logs %}
+<div class="section-label">Last 100 sends</div>
+{% for log in logs %}
+<div class="card">
+    <div class="card-body">
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:4px;">
+            <div style="font-weight:600; font-size:13px; color:#0f172a;">{{ log.member.name }}</div>
+            <div style="font-size:11px; color:#94a3b8; white-space:nowrap; margin-left:8px;">
+                {{ log.sent_at|date:"d M, H:i" }}
+            </div>
+        </div>
+        {% if log.template %}
+        <div style="font-size:12px; color:#64748b; margin-bottom:6px;">
+            <span class="badge bg-secondary">{{ log.template.get_category_display }}</span>
+            {{ log.template.name }}
+        </div>
+        {% endif %}
+        <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px;
+                    padding:10px; font-size:12px; color:#334155;
+                    white-space:pre-wrap; font-family:inherit;">{{ log.message }}</div>
+    </div>
+</div>
+{% endfor %}
+
+{% else %}
+<div style="text-align:center; padding:48px 20px; color:#94a3b8;">
+    <i class="fas fa-history" style="font-size:32px; margin-bottom:12px; display:block;"></i>
+    <div style="font-size:14px;">No messages sent yet.</div>
+</div>
+{% endif %}
+
+{% endblock %}

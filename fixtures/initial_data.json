@@ -1,0 +1,270 @@
+[
+  {
+    "model": "members.plan",
+    "pk": 1,
+    "fields": {
+      "name": "Monthly",
+      "duration_days": 30,
+      "price": "800.00",
+      "description": "Monthly membership plan",
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "members.plan",
+    "pk": 2,
+    "fields": {
+      "name": "Quarterly",
+      "duration_days": 90,
+      "price": "2000.00",
+      "description": "Quarterly membership plan",
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "messaging.messagetemplate",
+    "pk": 1,
+    "fields": {
+      "name": "Fees Due",
+      "body": "Hi {name}, your gym membership expires in {days} days on {expiry_date}. Please renew to continue. - GymHub",
+      "category": "fees_due",
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "messaging.messagetemplate",
+    "pk": 2,
+    "fields": {
+      "name": "Fees Overdue",
+      "body": "Hi {name}, your gym membership expired on {expiry_date}. Please renew at the earliest. - GymHub",
+      "category": "fees_overdue",
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "messaging.messagetemplate",
+    "pk": 3,
+    "fields": {
+      "name": "Fees Paid",
+      "body": "Hi {name}, payment of ₹{amount} received. Your membership is active till {expiry_date}. Thank you! - GymHub",
+      "category": "fees_paid",
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "messaging.messagetemplate",
+    "pk": 4,
+    "fields": {
+      "name": "Announcement",
+      "body": "{name}, {announcement}",
+      "category": "announcement",
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "members.member",
+    "pk": 1,
+    "fields": {
+      "name": "Rahul Sharma",
+      "phone": "9876543210",
+      "address": "123 Main Street, Delhi",
+      "dob": "1990-05-15",
+      "profile_photo": "",
+      "joined_at": "2024-01-01",
+      "status": "active",
+      "notes": "",
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "members.member",
+    "pk": 2,
+    "fields": {
+      "name": "Priya Patel",
+      "phone": "9876543211",
+      "address": "456 Park Avenue, Mumbai",
+      "dob": "1992-08-20",
+      "profile_photo": "",
+      "joined_at": "2024-02-01",
+      "status": "active",
+      "notes": "",
+      "created_at": "2024-02-01T00:00:00Z",
+      "updated_at": "2024-02-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "members.member",
+    "pk": 3,
+    "fields": {
+      "name": "Amit Kumar",
+      "phone": "9876543212",
+      "address": "789 Gandhi Road, Bangalore",
+      "dob": "1988-12-10",
+      "profile_photo": "",
+      "joined_at": "2024-03-01",
+      "status": "active",
+      "notes": "",
+      "created_at": "2024-03-01T00:00:00Z",
+      "updated_at": "2024-03-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "members.member",
+    "pk": 4,
+    "fields": {
+      "name": "Sneha Reddy",
+      "phone": "9876543213",
+      "address": "321 Nehru Street, Hyderabad",
+      "dob": "1995-03-25",
+      "profile_photo": "",
+      "joined_at": "2024-04-01",
+      "status": "expired",
+      "notes": "",
+      "created_at": "2024-04-01T00:00:00Z",
+      "updated_at": "2024-04-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "members.member",
+    "pk": 5,
+    "fields": {
+      "name": "Vikram Singh",
+      "phone": "9876543214",
+      "address": "654 Subhash Road, Chennai",
+      "dob": "1985-06-14",
+      "profile_photo": "",
+      "joined_at": "2024-05-01",
+      "status": "active",
+      "notes": "",
+      "created_at": "2024-05-01T00:00:00Z",
+      "updated_at": "2024-05-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "members.membership",
+    "pk": 1,
+    "fields": {
+      "member": 1,
+      "plan": 1,
+      "start_date": "2024-06-01",
+      "end_date": "2024-06-30",
+      "is_active": true,
+      "created_at": "2024-06-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "members.membership",
+    "pk": 2,
+    "fields": {
+      "member": 2,
+      "plan": 2,
+      "start_date": "2024-05-01",
+      "end_date": "2024-07-30",
+      "is_active": true,
+      "created_at": "2024-05-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "members.membership",
+    "pk": 3,
+    "fields": {
+      "member": 3,
+      "plan": 1,
+      "start_date": "2024-06-10",
+      "end_date": "2024-07-10",
+      "is_active": true,
+      "created_at": "2024-06-10T00:00:00Z"
+    }
+  },
+  {
+    "model": "members.membership",
+    "pk": 4,
+    "fields": {
+      "member": 4,
+      "plan": 1,
+      "start_date": "2024-04-01",
+      "end_date": "2024-05-01",
+      "is_active": false,
+      "created_at": "2024-04-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "members.membership",
+    "pk": 5,
+    "fields": {
+      "member": 5,
+      "plan": 2,
+      "start_date": "2024-06-14",
+      "end_date": "2024-09-12",
+      "is_active": true,
+      "created_at": "2024-06-14T00:00:00Z"
+    }
+  },
+  {
+    "model": "members.payment",
+    "pk": 1,
+    "fields": {
+      "member": 1,
+      "amount": "800.00",
+      "date": "2024-06-01",
+      "method": "Cash",
+      "notes": "",
+      "created_at": "2024-06-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "members.payment",
+    "pk": 2,
+    "fields": {
+      "member": 2,
+      "amount": "2000.00",
+      "date": "2024-05-01",
+      "method": "UPI",
+      "notes": "",
+      "created_at": "2024-05-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "members.payment",
+    "pk": 3,
+    "fields": {
+      "member": 3,
+      "amount": "800.00",
+      "date": "2024-06-10",
+      "method": "Card",
+      "notes": "",
+      "created_at": "2024-06-10T00:00:00Z"
+    }
+  },
+  {
+    "model": "members.payment",
+    "pk": 4,
+    "fields": {
+      "member": 4,
+      "amount": "800.00",
+      "date": "2024-04-01",
+      "method": "Cash",
+      "notes": "",
+      "created_at": "2024-04-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "members.payment",
+    "pk": 5,
+    "fields": {
+      "member": 5,
+      "amount": "2000.00",
+      "date": "2024-06-14",
+      "method": "UPI",
+      "notes": "",
+      "created_at": "2024-06-14T00:00:00Z"
+    }
+  }
+]

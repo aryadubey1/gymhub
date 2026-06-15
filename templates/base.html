@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GymHub</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --gh-primary: #2563eb;
+            --gh-primary-light: #eff6ff;
+            --gh-surface: #ffffff;
+            --gh-bg: #f8fafc;
+            --gh-border: #e2e8f0;
+            --gh-text: #0f172a;
+            --gh-muted: #64748b;
+            --gh-success: #16a34a;
+            --gh-warning: #d97706;
+            --gh-danger: #dc2626;
+            --gh-nav-height: 64px;
+            --gh-radius: 12px;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--gh-bg);
+            color: var(--gh-text);
+            font-size: 14px;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Cards */
+        .card {
+            border: 1px solid var(--gh-border);
+            border-radius: var(--gh-radius);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+            margin-bottom: 12px;
+            background: var(--gh-surface);
+        }
+        .card-body { padding: 16px; }
+        .card-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--gh-text);
+            margin-bottom: 12px;
+        }
+
+        /* Forms */
+        .form-control, .form-select {
+            border: 1px solid var(--gh-border);
+            border-radius: 8px;
+            font-size: 14px;
+            padding: 9px 12px;
+            background: var(--gh-surface);
+            color: var(--gh-text);
+            transition: border-color 0.15s, box-shadow 0.15s;
+        }
+        .form-control:focus, .form-select:focus {
+            border-color: var(--gh-primary);
+            box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
+            outline: none;
+        }
+        .form-label {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--gh-text);
+            margin-bottom: 5px;
+        }
+        .form-text {
+            font-size: 12px;
+            color: var(--gh-muted);
+        }
+
+        /* Buttons */
+        .btn {
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 500;
+            padding: 8px 16px;
+            transition: all 0.15s;
+            border: none;
+        }
+        .btn-primary {
+            background: var(--gh-primary);
+            color: #fff;
+        }
+        .btn-primary:hover { background: #1d4ed8; color: #fff; }
+
+        .btn-outline-secondary {
+            border: 1px solid var(--gh-border);
+            color: var(--gh-muted);
+            background: var(--gh-surface);
+        }
+        .btn-outline-secondary:hover {
+            background: var(--gh-bg);
+            color: var(--gh-text);
+            border-color: #cbd5e1;
+        }
+        .btn-outline-primary {
+            border: 1px solid var(--gh-primary);
+            color: var(--gh-primary);
+            background: transparent;
+        }
+        .btn-outline-primary:hover {
+            background: var(--gh-primary-light);
+            color: var(--gh-primary);
+        }
+        .btn-outline-success {
+            border: 1px solid #16a34a;
+            color: #16a34a;
+            background: transparent;
+        }
+        .btn-outline-success:hover { background: #f0fdf4; color: #16a34a; }
+        .btn-success { background: var(--gh-success); color: #fff; }
+        .btn-success:hover { background: #15803d; color: #fff; }
+        .btn-sm { padding: 5px 12px; font-size: 12px; }
+
+        /* Badges */
+        .badge {
+            font-size: 11px;
+            font-weight: 500;
+            padding: 3px 8px;
+            border-radius: 6px;
+        }
+        .badge.bg-success { background: #dcfce7 !important; color: #16a34a !important; }
+        .badge.bg-danger  { background: #fee2e2 !important; color: #dc2626 !important; }
+        .badge.bg-warning { background: #fef3c7 !important; color: #d97706 !important; }
+        .badge.bg-secondary { background: #f1f5f9 !important; color: #64748b !important; }
+        .badge.bg-light   { background: #f1f5f9 !important; color: #475569 !important; }
+
+        /* Alerts */
+        .alert {
+            border-radius: var(--gh-radius);
+            border: 1px solid transparent;
+            font-size: 13px;
+            padding: 10px 14px;
+        }
+
+        /* Bottom nav */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: var(--gh-nav-height);
+            background: var(--gh-surface);
+            border-top: 1px solid var(--gh-border);
+            z-index: 1000;
+        }
+        .bottom-nav .nav-link {
+            text-align: center;
+            padding: 10px 0;
+            color: var(--gh-muted);
+            font-size: 11px;
+            font-weight: 500;
+            letter-spacing: 0.01em;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 3px;
+            transition: color 0.15s;
+        }
+        .bottom-nav .nav-link.active { color: var(--gh-primary); }
+        .bottom-nav .nav-link i { font-size: 18px; }
+
+        /* FAB */
+        .fab {
+            position: fixed;
+            bottom: calc(var(--gh-nav-height) + 16px);
+            right: 20px;
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            background: var(--gh-primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            box-shadow: 0 4px 12px rgba(37,99,235,0.35);
+            z-index: 999;
+            text-decoration: none;
+            transition: transform 0.15s, box-shadow 0.15s;
+        }
+        .fab:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 16px rgba(37,99,235,0.4);
+            color: white;
+        }
+
+        /* Page header */
+        .page-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+        .page-header h1 {
+            font-size: 18px;
+            font-weight: 700;
+            margin: 0;
+            color: var(--gh-text);
+        }
+        .page-header .btn-back {
+            width: 34px;
+            height: 34px;
+            border-radius: 8px;
+            border: 1px solid var(--gh-border);
+            background: var(--gh-surface);
+            color: var(--gh-muted);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            flex-shrink: 0;
+            text-decoration: none;
+            transition: background 0.15s;
+        }
+        .page-header .btn-back:hover { background: var(--gh-bg); }
+
+        /* Force auth form inputs to match app style */
+        input[type="text"], input[type="password"], input[type="email"] {
+            width: 100%;
+            border: 1px solid var(--gh-border);
+            border-radius: 8px;
+            font-size: 14px;
+            padding: 9px 12px;
+            background: var(--gh-surface);
+            color: var(--gh-text);
+            transition: border-color 0.15s, box-shadow 0.15s;
+            font-family: 'Inter', sans-serif;
+        }
+        input[type="text"]:focus, input[type="password"]:focus {
+            border-color: var(--gh-primary);
+            box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
+            outline: none;
+        }
+
+        /* Section label */
+        .section-label {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--gh-muted);
+            margin-bottom: 8px;
+        }
+
+        /* Divider row */
+        .row-divider {
+            border-top: 1px solid var(--gh-border);
+            padding-top: 10px;
+            margin-top: 2px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-3" style="max-width: 540px;">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        {% block content %}{% endblock %}
+    </div>
+
+    {% if user.is_authenticated %}
+    <nav class="bottom-nav">
+        <div class="container" style="max-width: 540px;">
+            <div class="row">
+                <div class="col-4">
+                    <a href="{% url 'dashboard' %}" class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
+                        <i class="fas fa-home"></i>
+                        Dashboard
+                    </a>
+                </div>
+                <div class="col-4">
+                    <a href="{% url 'member_list' %}" class="nav-link {% if request.resolver_match.url_name == 'member_list' %}active{% endif %}">
+                        <i class="fas fa-users"></i>
+                        Members
+                    </a>
+                </div>
+                <div class="col-4">
+                    <a href="{% url 'bulk_message' %}" class="nav-link {% if request.resolver_match.url_name == 'bulk_message' %}active{% endif %}">
+                        <i class="fas fa-comment-dots"></i>
+                        Message
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+    {% endif %}
+
+        {% if user.is_authenticated %}
+        <div style="position:fixed; top:12px; right:16px; z-index:1001; display:flex; gap:8px;">
+            <a href="{% url 'change_password' %}"
+               style="font-size:11px; color:#64748b; text-decoration:none; padding:4px 10px;
+                      border:1px solid #e2e8f0; border-radius:6px; background:white;">
+                <i class="fas fa-lock"></i>
+            </a>
+            <form method="post" action="{% url 'logout' %}" style="display:inline;">
+                {% csrf_token %}
+                <button type="submit"
+                        style="font-size:11px; color:#64748b; padding:4px 10px;
+                               border:1px solid #e2e8f0; border-radius:6px; background:white;
+                               cursor:pointer; font-family:'Inter',sans-serif;">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </button>
+            </form>
+        </div>
+        <style>body { padding-bottom: calc(var(--gh-nav-height) + 16px); }</style>
+        {% endif %}
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

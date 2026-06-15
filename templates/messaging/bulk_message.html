@@ -1,0 +1,197 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="page-header">
+    <h1>Bulk Message</h1>
+</div>
+<div style="margin-top:-8px; margin-bottom:14px;">
+    <a href="{% url 'message_log' %}" style="font-size:12px; color:#64748b; text-decoration:none;">
+        <i class="fas fa-history"></i> View send history
+    </a>
+</div>
+
+<!-- Form -->
+<div class="card">
+    <div class="card-body">
+        <form method="post">
+            {% csrf_token %}
+
+            <div class="mb-3">
+                <label for="template" class="form-label">Template</label>
+                <select name="template" id="template" class="form-select" required>
+                    <option value="">Choose a template…</option>
+                    {% for t in templates %}
+                    <option value="{{ t.pk }}"
+                            data-category="{{ t.category }}"
+                            {% if selected_template and selected_template.pk == t.pk %}selected{% endif %}>
+                        {{ t.name }} — {{ t.get_category_display }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="mb-3" id="announcement-field" style="display:none;">
+                <label for="custom_message" class="form-label">
+                    Announcement
+                    <span style="color:#94a3b8; font-weight:400;">(replaces {announcement} in template)</span>
+                </label>
+                <textarea name="custom_message" id="custom_message" class="form-control" rows="3"
+                    placeholder="e.g. The gym will be closed on Sunday for maintenance.">{{ custom_message }}</textarea>
+            </div>
+
+            <div class="mb-3">
+                <label for="recipient_group" class="form-label">Recipients</label>
+                <select name="recipient_group" id="recipient_group" class="form-select" required>
+                    <option value="">Choose recipients…</option>
+                    <option value="active"     {% if recipient_group == 'active' %}selected{% endif %}>All Active Members</option>
+                    <option value="expiring_3" {% if recipient_group == 'expiring_3' %}selected{% endif %}>Expiring in 3 Days</option>
+                    <option value="expiring_7" {% if recipient_group == 'expiring_7' %}selected{% endif %}>Expiring in 7 Days</option>
+                    <option value="overdue"    {% if recipient_group == 'overdue' %}selected{% endif %}>Overdue Members</option>
+                    <option value="all"        {% if recipient_group == 'all' %}selected{% endif %}>All Members</option>
+                </select>
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100">
+                <i class="fas fa-paper-plane"></i> Prepare Messages
+            </button>
+        </form>
+    </div>
+</div>
+
+{% if prepared_recipients %}
+
+<!-- Progress + Send Next -->
+<div class="card">
+    <div class="card-body">
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;">
+            <div style="font-size:13px; font-weight:600; color:#0f172a;">
+                <span id="sent-count">0</span>&thinsp;/&thinsp;{{ recipient_count }} sent
+            </div>
+            <button class="btn btn-success btn-sm" id="send-next-btn" onclick="sendNext()">
+                <i class="fab fa-whatsapp"></i> Send Next
+            </button>
+        </div>
+        <div style="background:#e2e8f0; border-radius:999px; height:6px; overflow:hidden;">
+            <div id="progress-bar" style="background:#16a34a; height:100%; width:0%; transition:width 0.3s;"></div>
+        </div>
+        <div style="font-size:11px; color:#94a3b8; margin-top:6px;">
+            Opens WhatsApp for each member in order. Come back and tap again after each send.
+        </div>
+    </div>
+</div>
+
+<!-- Per-member cards -->
+<div class="section-label">{{ recipient_count }} Recipient{{ recipient_count|pluralize }}</div>
+
+{% for item in prepared_recipients %}
+<div class="card" id="card-{{ item.member.pk }}">
+    <div class="card-body">
+
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+            <div style="font-weight:600; font-size:13px; color:#0f172a;">{{ item.member.name }}</div>
+            <span class="badge bg-success" id="badge-{{ item.member.pk }}" style="display:none;">Sent</span>
+        </div>
+
+        <div style="font-size:12px; color:#64748b; margin-bottom:8px;">{{ item.member.phone }}</div>
+
+        <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px;
+                    padding:10px; font-size:12px; color:#334155;
+                    white-space:pre-wrap; font-family:inherit; margin-bottom:10px;">{{ item.message }}</div>
+
+        <button class="btn btn-success btn-sm w-100"
+                id="btn-{{ item.member.pk }}"
+                onclick="sendIndividual({{ forloop.counter0 }})">
+            <i class="fab fa-whatsapp"></i> Send on WhatsApp
+        </button>
+
+    </div>
+</div>
+{% endfor %}
+
+{# Safe XSS-escaped JSON for JS consumption #}
+{{ recipients_data|json_script:"recipients-data" }}
+
+{% endif %}
+{% endblock %}
+
+
+{% block scripts %}
+<script>
+// Uses data-category attribute — not fragile text matching
+function toggleAnnouncementField() {
+    const select = document.getElementById('template');
+    const opt = select.options[select.selectedIndex];
+    const category = opt ? opt.getAttribute('data-category') : '';
+    const field = document.getElementById('announcement-field');
+    const textarea = document.getElementById('custom_message');
+    field.style.display = category === 'announcement' ? 'block' : 'none';
+    if (category !== 'announcement' && textarea) textarea.value = '';
+}
+document.getElementById('template').addEventListener('change', toggleAnnouncementField);
+toggleAnnouncementField();
+
+{% if prepared_recipients %}
+const csrfToken = '{{ csrf_token }}';
+const logSendUrl = '{% url "log_send" %}';
+const totalCount = {{ recipient_count }};
+const recipients = JSON.parse(document.getElementById('recipients-data').textContent);
+const sentSet = new Set();
+let currentIndex = 0;
+
+function updateProgress() {
+    document.getElementById('sent-count').textContent = sentSet.size;
+    const pct = totalCount > 0 ? (sentSet.size / totalCount * 100) : 0;
+    document.getElementById('progress-bar').style.width = pct + '%';
+    if (sentSet.size >= totalCount) {
+        const btn = document.getElementById('send-next-btn');
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-check"></i> All Sent';
+    }
+}
+
+function markSent(memberId) {
+    sentSet.add(memberId);
+    const card  = document.getElementById('card-'  + memberId);
+    const badge = document.getElementById('badge-' + memberId);
+    const btn   = document.getElementById('btn-'   + memberId);
+    if (card)  card.style.opacity = '0.55';
+    if (badge) badge.style.display = 'inline-block';
+    if (btn)   { btn.disabled = true; btn.innerHTML = '<i class="fas fa-check"></i> Sent'; }
+    updateProgress();
+}
+
+function logSend(memberId, templateId, message) {
+    fetch(logSendUrl, {
+        method: 'POST',
+        body: new URLSearchParams({
+            csrfmiddlewaretoken: csrfToken,
+            member_id: memberId,
+            template_id: templateId,
+            message: message,
+        })
+    });
+}
+
+function sendIndividual(index) {
+    const r = recipients[index];
+    if (sentSet.has(r.memberId)) return;
+    logSend(r.memberId, r.templateId, r.message);
+    markSent(r.memberId);
+    window.open(r.waLink, '_blank');
+}
+
+function sendNext() {
+    while (currentIndex < recipients.length && sentSet.has(recipients[currentIndex].memberId)) {
+        currentIndex++;
+    }
+    if (currentIndex >= recipients.length) return;
+    const r = recipients[currentIndex];
+    logSend(r.memberId, r.templateId, r.message);
+    markSent(r.memberId);
+    window.open(r.waLink, '_blank');
+    currentIndex++;
+}
+{% endif %}
+</script>
+{% endblock %}

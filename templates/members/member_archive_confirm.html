@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="page-header">
+    <a href="{% url 'member_detail' member.pk %}" class="btn-back">
+        <i class="fas fa-arrow-left"></i>
+    </a>
+    <h1>Archive Member</h1>
+</div>
+
+<div class="card" style="border-left: 3px solid #d97706;">
+    <div class="card-body">
+        <div style="font-size:15px; font-weight:600; color:#0f172a; margin-bottom:8px;">
+            Archive {{ member.name }}?
+        </div>
+        <p style="font-size:13px; color:#64748b; margin-bottom:16px;">
+            This member will be hidden from all lists, dashboards, and messaging. 
+            Their payment and membership history will be preserved. 
+            You can restore them from the admin panel if needed.
+        </p>
+        <div class="row g-2">
+            <div class="col-6">
+                <a href="{% url 'member_detail' member.pk %}" class="btn btn-outline-secondary w-100">
+                    Cancel
+                </a>
+            </div>
+            <div class="col-6">
+                <form method="post">
+                    {% csrf_token %}
+                    <button type="submit" class="btn w-100" style="background:#d97706; color:white;">
+                        <i class="fas fa-archive"></i> Archive
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

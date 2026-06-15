@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="page-header">
+    <a href="{% if member %}{% url 'member_detail' member.pk %}{% else %}{% url 'member_list' %}{% endif %}" class="btn-back">
+        <i class="fas fa-arrow-left"></i>
+    </a>
+    <h1>{{ title }}</h1>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <div class="mb-3">
+                <label for="{{ form.name.id_for_label }}" class="form-label">Name</label>
+                {{ form.name }}
+                {% if form.name.errors %}<div class="text-danger" style="font-size:12px; margin-top:4px;">{{ form.name.errors }}</div>{% endif %}
+            </div>
+
+            <div class="mb-3">
+                <label for="{{ form.phone.id_for_label }}" class="form-label">Phone</label>
+                {{ form.phone }}
+                {% if form.phone.errors %}<div class="text-danger" style="font-size:12px; margin-top:4px;">{{ form.phone.errors }}</div>{% endif %}
+            </div>
+
+            <div class="mb-3">
+                <label for="{{ form.address.id_for_label }}" class="form-label">Address <span style="color:#94a3b8; font-weight:400;">(optional)</span></label>
+                {{ form.address }}
+            </div>
+
+            <div class="mb-3">
+                <label for="{{ form.dob.id_for_label }}" class="form-label">Date of Birth <span style="color:#94a3b8; font-weight:400;">(optional)</span></label>
+                {{ form.dob }}
+            </div>
+
+            <div class="mb-3">
+                <label for="{{ form.profile_photo.id_for_label }}" class="form-label">Profile Photo <span style="color:#94a3b8; font-weight:400;">(optional)</span></label>
+                {% if form.profile_photo.value %}
+                    <div class="mb-2">
+                        <img src="{{ form.profile_photo.value.url }}"
+                             style="width:64px; height:64px; border-radius:50%; object-fit:cover; border:2px solid #e2e8f0;">
+                    </div>
+                {% endif %}
+                {{ form.profile_photo }}
+            </div>
+
+            <div class="mb-3">
+                <label for="{{ form.status.id_for_label }}" class="form-label">Status</label>
+                {{ form.status }}
+            </div>
+
+            <div class="mb-3">
+                <label for="{{ form.notes.id_for_label }}" class="form-label">Notes <span style="color:#94a3b8; font-weight:400;">(optional)</span></label>
+                {{ form.notes }}
+            </div>
+
+            {% if form.plan %}
+            <div style="border-top:1px solid #f1f5f9; padding-top:14px; margin-top:4px; margin-bottom:14px;">
+                <div class="section-label" style="margin-bottom:12px;">Membership</div>
+                <div class="mb-3">
+                    <label for="{{ form.plan.id_for_label }}" class="form-label">Plan</label>
+                    {{ form.plan }}
+                </div>
+                <div class="mb-3">
+                    <label for="{{ form.start_date.id_for_label }}" class="form-label">Start Date</label>
+                    {{ form.start_date }}
+                </div>
+            </div>
+            {% endif %}
+
+            <button type="submit" class="btn btn-primary w-100">
+                <i class="fas fa-save"></i> Save
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}
