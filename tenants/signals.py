@@ -11,8 +11,11 @@ def create_gym_for_new_user(sender, instance, created, **kwargs):
     if not created:
         return
 
-    if hasattr(instance, 'gym'):
-        return
+    try:
+        instance.gym
+        return  
+    except instance.__class__.gym.RelatedObjectDoesNotExist:
+        pass  
 
     base_slug = slugify(instance.username) or 'gym'
     slug = base_slug
