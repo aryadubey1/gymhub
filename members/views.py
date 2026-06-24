@@ -145,9 +145,11 @@ def member_detail(request, pk):
 @login_required
 def member_add(request):
     if request.method == 'POST':
-        form = MemberWithMembershipForm(request.POST, request.FILES)
+        form = MemberWithMembershipForm(request.POST, request.FILES, gym=request.user.gym)
         if form.is_valid():
-            member = form.save()
+            member = form.save(commit=False)
+            member.gym = request.user.gym
+            member.save()
             plan = form.cleaned_data.get('plan')
             start_date = form.cleaned_data.get('start_date')
             
@@ -156,16 +158,16 @@ def member_add(request):
                     member=member,
                     plan=plan,
                     start_date=start_date,
-                    is_active=True
+                    is_active=True,
+                    gym=request.user.gym,
                 )
             
             messages.success(request, f'Member {member.name} added successfully!')
             return redirect('member_detail', pk=member.pk)
     else:
-        form = MemberWithMembershipForm()
+        form = MemberWithMembershipForm(gym=request.user.gym)
     
     return render(request, 'members/member_form.html', {'form': form, 'title': 'Add Member'})
-
 
 @login_required
 def member_edit(request, pk):
@@ -192,6 +194,7 @@ def member_pay(request, pk):
         if form.is_valid():
             payment = form.save(commit=False)
             payment.member = member
+            payment.gym = request.user.gym   
             payment.save()
             messages.success(request, f'Payment of ₹{payment.amount} recorded successfully!')
             return redirect('member_detail', pk=member.pk)
@@ -206,14 +209,15 @@ def member_renew(request, pk):
     member = get_object_or_404(Member, pk=pk)
 
     if request.method == 'POST':
-        form = RenewWithPaymentForm(request.POST)
+        form = RenewWithPaymentForm(request.POST, gym=request.user.gym)
         if form.is_valid():
             # Create membership
             membership = Membership(
                 member=member,
                 plan=form.cleaned_data['plan'],
                 start_date=form.cleaned_data['start_date'],
-                is_active=True
+                is_active=True,
+                gym=request.user.gym,   # <-- add this
             )
             membership.save()  # triggers deactivation of old membership
 
@@ -222,27 +226,9 @@ def member_renew(request, pk):
                 member=member,
                 amount=form.cleaned_data['amount'],
                 method=form.cleaned_data['method'],
-                notes=form.cleaned_data.get('notes', '')
+                notes=form.cleaned_data.get('notes', ''),
+                gym=request.user.gym,   # <-- add this
             )
-
-            member.status = 'active'
-            member.save()
-
-            messages.success(request, f'Membership renewed and payment recorded for {member.name}!')
-            return redirect('member_detail', pk=member.pk)
-    else:
-        # Pre-fill amount from current plan price
-        initial = {}
-        if member.active_membership:
-            initial['plan'] = member.active_membership.plan
-            initial['amount'] = member.active_membership.plan.price
-        form = RenewWithPaymentForm(initial=initial)
-
-    return render(request, 'members/membership_form.html', {
-        'form': form,
-        'member': member,
-        'plans': Plan.objects.filter(is_active=True)
-    })
 
 
 @login_required

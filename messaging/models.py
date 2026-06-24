@@ -1,7 +1,9 @@
 from django.db import models
 
+from tenants.models import TenantModel
 
-class MessageTemplate(models.Model):
+
+class MessageTemplate(TenantModel):
     CATEGORY_CHOICES = [
         ('fees_due', 'Fees Due'),
         ('fees_paid', 'Fees Paid'),
@@ -37,10 +39,10 @@ class MessageTemplate(models.Model):
         try:
             return self.body.format(**context)
         except (KeyError, ValueError):
-            return self.body  # return raw body if a placeholder is broken
+            return self.body
 
 
-class MessageLog(models.Model):
+class MessageLog(TenantModel):
     template = models.ForeignKey(
         MessageTemplate, on_delete=models.SET_NULL, null=True, blank=True
     )

@@ -19,6 +19,7 @@ INSTALLED_APPS = [
     'whitenoise',
     'members',
     'messaging',
+    'tenants',
 ]
 
 MIDDLEWARE = [
@@ -28,6 +29,7 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'tenants.middleware.CurrentGymMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'members.middleware.AutoExpireMembersMiddleware',

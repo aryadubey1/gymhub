@@ -1,5 +1,5 @@
 import json
-from pyexpat.errors import messages
+from django.contrib import messages
 from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
@@ -113,7 +113,8 @@ def log_send(request):
     MessageLog.objects.create(
         member=member,
         template=template,
-        message=request.POST.get('message', '')
+        message=request.POST.get('message', ''),
+        gym=request.user.gym,   
     )
     return JsonResponse({'status': 'ok'})
 

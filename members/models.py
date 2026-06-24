@@ -1,10 +1,11 @@
 from django.db import models
 from django.utils import timezone
 from django.core.validators import RegexValidator
-from decimal import Decimal
+
+from tenants.models import TenantModel
 
 
-class Plan(models.Model):
+class Plan(TenantModel):
     name = models.CharField(max_length=100)
     duration_days = models.IntegerField(help_text='30=monthly, 90=quarterly, 365=annual')
     price = models.DecimalField(max_digits=8, decimal_places=2)
@@ -16,7 +17,7 @@ class Plan(models.Model):
         return f"{self.name} - ₹{self.price}"
 
 
-class Member(models.Model):
+class Member(TenantModel):
     STATUS_CHOICES = [
         ('active', 'Active'),
         ('paused', 'Paused'),
@@ -26,7 +27,6 @@ class Member(models.Model):
     name = models.CharField(max_length=200)
     phone = models.CharField(
         max_length=10,
-        unique=True,
         validators=[RegexValidator(r'^\d{10}$', 'Phone must be exactly 10 digits')]
     )
     address = models.TextField(blank=True)
@@ -38,7 +38,10 @@ class Member(models.Model):
     is_archived = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    
+
+    class Meta:
+        unique_together = ('gym', 'phone')
+
     def __str__(self):
         return f"{self.name} ({self.phone})"
 
@@ -63,7 +66,7 @@ class Member(models.Model):
         return False
 
 
-class Membership(models.Model):
+class Membership(TenantModel):
     member = models.ForeignKey(Member, on_delete=models.PROTECT)
     plan = models.ForeignKey(Plan, on_delete=models.PROTECT)
     start_date = models.DateField()
@@ -76,21 +79,19 @@ class Membership(models.Model):
 
     def save(self, *args, **kwargs):
         from datetime import timedelta
-        # Auto-calculate end_date
         if not self.end_date and self.plan:
             self.end_date = self.start_date + timedelta(days=self.plan.duration_days)
-        
-        # Deactivate previous memberships for this member when creating a new active one
+
         if self.is_active:
             Membership.objects.filter(
                 member=self.member,
                 is_active=True
             ).exclude(pk=self.pk).update(is_active=False)
-        
+
         super().save(*args, **kwargs)
 
 
-class Payment(models.Model):
+class Payment(TenantModel):
     METHOD_CHOICES = [
         ('Cash', 'Cash'),
         ('UPI', 'UPI'),

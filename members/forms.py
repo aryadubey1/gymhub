@@ -51,9 +51,8 @@ class MembershipForm(forms.ModelForm):
         }
 
 class RenewWithPaymentForm(forms.Form):
-    # Membership fields
     plan = forms.ModelChoiceField(
-        queryset=Plan.objects.filter(is_active=True),
+        queryset=Plan.objects.none(),  # overridden in __init__
         widget=forms.Select(attrs={'class': 'form-control'}),
         label='Plan'
     )
@@ -61,7 +60,6 @@ class RenewWithPaymentForm(forms.Form):
         widget=forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
         label='Start Date'
     )
-    # Payment fields
     amount = forms.DecimalField(
         max_digits=8, decimal_places=2,
         widget=forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01', 'placeholder': 'Amount'}),
@@ -78,15 +76,22 @@ class RenewWithPaymentForm(forms.Form):
         label='Notes'
     )
 
+    def __init__(self, *args, **kwargs):
+        gym = kwargs.pop('gym', None)
+        super().__init__(*args, **kwargs)
+        if gym:
+            self.fields['plan'].queryset = Plan.objects.unscoped().filter(gym=gym, is_active=True)
+
     def clean_amount(self):
         amount = self.cleaned_data.get('amount')
         if amount <= 0:
             raise forms.ValidationError('Amount must be positive')
         return amount
 
+
 class MemberWithMembershipForm(forms.ModelForm):
     plan = forms.ModelChoiceField(
-        queryset=Plan.objects.filter(is_active=True),
+        queryset=Plan.objects.none(),  # overridden in __init__
         widget=forms.Select(attrs={'class': 'form-control'}),
         label='Select Plan'
     )
@@ -109,7 +114,10 @@ class MemberWithMembershipForm(forms.ModelForm):
         }
 
     def __init__(self, *args, **kwargs):
+        gym = kwargs.pop('gym', None)
         super().__init__(*args, **kwargs)
+        if gym:
+            self.fields['plan'].queryset = Plan.objects.unscoped().filter(gym=gym, is_active=True)
         self.fields['phone'].validators = [
             RegexValidator(r'^\d{10}$', 'Phone must be exactly 10 digits')
         ]
