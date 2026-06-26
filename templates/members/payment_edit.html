@@ -1,42 +1,54 @@
 {% extends 'base.html' %}
+{% block title %}Edit Payment · GymHub{% endblock %}
 
 {% block content %}
-<div class="page-header">
-    <a href="{% url 'member_detail' member.pk %}" class="btn-back">
-        <i class="fas fa-arrow-left"></i>
-    </a>
-    <h1>Edit Payment</h1>
-</div>
+<div class="mt-6">
 
-<div style="font-size:13px; color:#64748b; margin-bottom:12px; font-weight:500;">
-    For: <span style="color:#0f172a;">{{ member.name }}</span>
-    &middot; <span style="color:#94a3b8;">{{ payment.date|date:"d M Y" }}</span>
-</div>
+    <div class="flex items-center gap-3 mb-2">
+        <a href="{% url 'member_detail' member.pk %}"
+            class="flex items-center justify-center h-8 w-8 rounded-xl border border-white/10 bg-slate-900 hover:bg-slate-800 transition-colors">
+            <i class="fas fa-arrow-left text-xs text-slate-400"></i>
+        </a>
+        <h1 class="text-lg font-bold text-slate-100">Edit Payment</h1>
+    </div>
 
-<div class="card">
-    <div class="card-body">
+    <p class="text-xs text-slate-500 mb-4 pl-11">
+        {{ member.name }} <span class="text-slate-600">·</span> {{ payment.date|date:"d M Y" }}
+    </p>
+
+    <div class="rounded-2xl border border-white/5 bg-slate-900 p-5">
         <form method="post">
             {% csrf_token %}
 
-            <div class="mb-3">
-                <label for="{{ form.amount.id_for_label }}" class="form-label">Amount (₹)</label>
-                {{ form.amount }}
-                {% if form.amount.errors %}<div class="text-danger" style="font-size:12px; margin-top:4px;">{{ form.amount.errors }}</div>{% endif %}
+            <div class="mb-4">
+                <label class="block text-xs font-medium text-slate-400 mb-1.5">Amount (₹)</label>
+                <input type="number" name="amount" value="{{ form.amount.value|default:'' }}"
+                    class="w-full rounded-xl border border-white/10 bg-slate-800 px-4 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-primary-500/60 focus:ring-1 focus:ring-primary-500/30 transition-colors">
+                {% if form.amount.errors %}<p class="mt-1.5 text-xs text-red-400">{{ form.amount.errors|join:", " }}</p>{% endif %}
             </div>
 
-            <div class="mb-3">
-                <label for="{{ form.method.id_for_label }}" class="form-label">Payment Method</label>
-                {{ form.method }}
-                {% if form.method.errors %}<div class="text-danger" style="font-size:12px; margin-top:4px;">{{ form.method.errors }}</div>{% endif %}
+            <div class="mb-4">
+                <label class="block text-xs font-medium text-slate-400 mb-1.5">Payment Method</label>
+                <select name="method"
+                    class="w-full rounded-xl border border-white/10 bg-slate-800 px-4 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-primary-500/60 focus:ring-1 focus:ring-primary-500/30 transition-colors appearance-none">
+                    {% for value, label in form.method.field.choices %}
+                    <option value="{{ value }}" {% if form.method.value == value %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+                {% if form.method.errors %}<p class="mt-1.5 text-xs text-red-400">{{ form.method.errors|join:", " }}</p>{% endif %}
             </div>
 
-            <div class="mb-3">
-                <label for="{{ form.notes.id_for_label }}" class="form-label">Notes <span style="color:#94a3b8; font-weight:400;">(optional)</span></label>
-                {{ form.notes }}
+            <div class="mb-5">
+                <label class="block text-xs font-medium text-slate-400 mb-1.5">
+                    Notes <span class="text-slate-600 font-normal">(optional)</span>
+                </label>
+                <textarea name="notes" rows="2"
+                    class="w-full rounded-xl border border-white/10 bg-slate-800 px-4 py-2.5 text-sm text-slate-100 placeholder-slate-600 focus:outline-none focus:border-primary-500/60 focus:ring-1 focus:ring-primary-500/30 transition-colors resize-none">{{ form.notes.value|default:'' }}</textarea>
             </div>
 
-            <button type="submit" class="btn btn-primary w-100">
-                <i class="fas fa-save"></i> Save Changes
+            <button type="submit"
+                class="w-full rounded-xl bg-primary-600 hover:bg-primary-500 text-white text-sm font-semibold py-2.5 transition-colors shadow-lg shadow-primary-500/20">
+                <i class="fas fa-save mr-1.5"></i> Save Changes
             </button>
         </form>
     </div>

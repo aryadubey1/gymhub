@@ -1,37 +1,44 @@
 {% extends 'base.html' %}
+{% block title %}Archive Member · GymHub{% endblock %}
 
 {% block content %}
-<div class="page-header">
-    <a href="{% url 'member_detail' member.pk %}" class="btn-back">
-        <i class="fas fa-arrow-left"></i>
-    </a>
-    <h1>Archive Member</h1>
-</div>
+<div class="mt-6">
 
-<div class="card" style="border-left: 3px solid #d97706;">
-    <div class="card-body">
-        <div style="font-size:15px; font-weight:600; color:#0f172a; margin-bottom:8px;">
-            Archive {{ member.name }}?
+    <div class="flex items-center gap-3 mb-5">
+        <a href="{% url 'member_detail' member.pk %}"
+            class="flex items-center justify-center h-8 w-8 rounded-xl border border-white/10 bg-slate-900 hover:bg-slate-800 transition-colors">
+            <i class="fas fa-arrow-left text-xs text-slate-400"></i>
+        </a>
+        <h1 class="text-lg font-bold text-slate-100">Archive Member</h1>
+    </div>
+
+    <div class="rounded-2xl border border-amber-500/20 bg-slate-900 p-5">
+        <div class="flex items-start gap-3 mb-4">
+            <div class="flex-shrink-0 h-9 w-9 rounded-xl bg-amber-500/10 flex items-center justify-center mt-0.5">
+                <i class="fas fa-archive text-sm text-amber-400"></i>
+            </div>
+            <div>
+                <p class="text-sm font-semibold text-slate-100">Archive {{ member.name }}?</p>
+                <p class="text-xs text-slate-500 mt-1 leading-relaxed">
+                    This member will be hidden from all lists, dashboards, and messaging.
+                    Their payment and membership history will be preserved.
+                    You can restore them from the admin panel if needed.
+                </p>
+            </div>
         </div>
-        <p style="font-size:13px; color:#64748b; margin-bottom:16px;">
-            This member will be hidden from all lists, dashboards, and messaging. 
-            Their payment and membership history will be preserved. 
-            You can restore them from the admin panel if needed.
-        </p>
-        <div class="row g-2">
-            <div class="col-6">
-                <a href="{% url 'member_detail' member.pk %}" class="btn btn-outline-secondary w-100">
-                    Cancel
-                </a>
-            </div>
-            <div class="col-6">
-                <form method="post">
-                    {% csrf_token %}
-                    <button type="submit" class="btn w-100" style="background:#d97706; color:white;">
-                        <i class="fas fa-archive"></i> Archive
-                    </button>
-                </form>
-            </div>
+
+        <div class="grid grid-cols-2 gap-2 mt-5">
+            <a href="{% url 'member_detail' member.pk %}"
+                class="flex items-center justify-center rounded-xl border border-white/10 bg-slate-800 hover:bg-slate-700 text-slate-300 text-sm font-medium py-2.5 transition-colors">
+                Cancel
+            </a>
+            <form method="post">
+                {% csrf_token %}
+                <button type="submit"
+                    class="w-full flex items-center justify-center gap-1.5 rounded-xl bg-amber-600 hover:bg-amber-500 text-white text-sm font-semibold py-2.5 transition-colors">
+                    <i class="fas fa-archive text-xs"></i> Archive
+                </button>
+            </form>
         </div>
     </div>
 </div>

@@ -1,245 +1,192 @@
 {% extends 'base.html' %}
 {% load static %}
+{% block title %}{{ member.name }} · GymHub{% endblock %}
 
 {% block content %}
-<div class="page-header">
-    <a href="{% url 'member_list' %}" class="btn-back"><i class="fas fa-arrow-left"></i></a>
-    <h1>Member Details</h1>
-</div>
+<div class="mt-6">
 
-<!-- Profile Card -->
-<div class="card" style="text-align:center; padding-top:4px;">
-    <div class="card-body pb-3">
-        <!-- Profile photo — opens lightbox -->
+    <!-- Back header -->
+    <div class="flex items-center gap-3 mb-5">
+        <a href="{% url 'member_list' %}"
+            class="flex items-center justify-center h-8 w-8 rounded-xl border border-white/10 bg-slate-900 hover:bg-slate-800 transition-colors">
+            <i class="fas fa-arrow-left text-xs text-slate-400"></i>
+        </a>
+        <h1 class="text-lg font-bold text-slate-100">Member Details</h1>
+    </div>
+
+    <!-- Profile card -->
+    <div class="rounded-2xl border border-white/5 bg-slate-900 p-5 text-center mb-3">
         {% if member.profile_photo %}
-            <img src="{{ member.profile_photo.url }}"
-                 id="profile-thumb"
-                 onclick="openPhoto(this.src)"
-                 style="width:88px; height:88px; border-radius:50%; object-fit:cover;
-                        border:3px solid #e2e8f0; cursor:pointer; margin-bottom:10px;
-                        transition: transform 0.15s;"
-                 onmouseover="this.style.transform='scale(1.04)'"
-                 onmouseout="this.style.transform='scale(1)'"
-                 alt="{{ member.name }}">
+        <img src="{{ member.profile_photo.url }}" id="profile-thumb" onclick="openPhoto(this.src)"
+            class="h-20 w-20 rounded-full object-cover border-2 border-white/10 mx-auto mb-3 cursor-zoom-in hover:scale-105 transition-transform"
+            alt="{{ member.name }}">
         {% else %}
-            <div style="width:88px; height:88px; border-radius:50%; background:#eff6ff;
-                        border:3px solid #e2e8f0; display:flex; align-items:center;
-                        justify-content:center; margin:0 auto 10px;">
-                <i class="fas fa-user" style="color:#2563eb; font-size:32px;"></i>
-            </div>
+        <div class="h-20 w-20 rounded-full bg-slate-800 border border-white/10 flex items-center justify-center mx-auto mb-3">
+            <i class="fas fa-user text-3xl text-slate-500"></i>
+        </div>
         {% endif %}
 
-        <div style="font-size:18px; font-weight:700; color:#0f172a;">
+        <h2 class="text-lg font-bold text-slate-100">
             {{ member.name }}
-            {% if member.is_birthday_today %}
-                <span title="Birthday today!"> 🎂</span>
-            {% endif %}
-        </div>
-        <div style="margin-top:6px;">
-            <span class="badge {% if member.status == 'active' %}bg-success{% elif member.status == 'expired' %}bg-danger{% elif member.status == 'paused' %}bg-warning{% endif %}"
-                  style="font-size:12px; padding:4px 10px;">
+            {% if member.is_birthday_today %}<span title="Birthday today!" class="ml-1">🎂</span>{% endif %}
+        </h2>
+
+        <div class="mt-2">
+            <span class="inline-block rounded-full px-3 py-0.5 text-xs font-medium
+                {% if member.status == 'active' %}bg-emerald-500/15 text-emerald-400
+                {% elif member.status == 'expired' %}bg-red-500/15 text-red-400
+                {% elif member.status == 'paused' %}bg-amber-500/15 text-amber-400
+                {% else %}bg-slate-700 text-slate-400{% endif %}">
                 {{ member.status|title }}
             </span>
         </div>
-        <div style="font-size:12px; color:#94a3b8; margin-top:6px;">
-            Joined {{ member.joined_at|date:"d M Y" }}
-        </div>
-    </div>
-</div>
 
-<!-- Current Membership -->
-{% if member.active_membership %}
-<div class="card">
-    <div class="card-body">
-        <div class="section-label">Current Plan</div>
-        <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+        <p class="text-xs text-slate-600 mt-2">Joined {{ member.joined_at|date:"d M Y" }}</p>
+    </div>
+
+    <!-- Current membership -->
+    {% if member.active_membership %}
+    <div class="rounded-2xl border border-white/5 bg-slate-900 p-4 mb-3">
+        <p class="text-[10px] font-semibold uppercase tracking-widest text-slate-600 mb-3">Current Plan</p>
+        <div class="flex items-start justify-between">
             <div>
-                <div style="font-weight:600; font-size:15px; color:#0f172a;">{{ member.active_membership.plan.name }}</div>
-                <div style="font-size:12px; color:#64748b; margin-top:3px;">
+                <p class="font-semibold text-sm text-slate-100">{{ member.active_membership.plan.name }}</p>
+                <p class="text-xs text-slate-500 mt-0.5">
                     {{ member.active_membership.start_date|date:"d M Y" }} → {{ member.active_membership.end_date|date:"d M Y" }}
-                </div>
+                </p>
             </div>
             {% if member.days_until_expiry is not None %}
-            <div style="text-align:right;">
-                <div style="font-size:20px; font-weight:700;
-                            color:{% if member.days_until_expiry <= 3 %}#dc2626{% elif member.days_until_expiry <= 7 %}#d97706{% else %}#16a34a{% endif %};">
+            <div class="text-right">
+                <p class="text-2xl font-bold leading-none
+                    {% if member.days_until_expiry <= 3 %}text-red-400
+                    {% elif member.days_until_expiry <= 7 %}text-amber-400
+                    {% else %}text-emerald-400{% endif %}">
                     {{ member.days_until_expiry }}
-                </div>
-                <div style="font-size:11px; color:#94a3b8;">days left</div>
+                </p>
+                <p class="text-[11px] text-slate-600 mt-0.5">days left</p>
             </div>
             {% endif %}
         </div>
     </div>
-</div>
-{% endif %}
+    {% endif %}
 
-<!-- Quick Actions -->
-<div class="card">
-    <div class="card-body">
-        <div class="section-label">Actions</div>
-        <div class="row g-2">
-            <div class="col-12">
-                <a href="{% url 'member_renew' member.pk %}" class="btn btn-primary w-100">
-                    <i class="fas fa-sync"></i> Renew & Record Payment
-                </a>
-            </div>
-            <div class="col-6">
-                <a href="sms:{{ member.phone }}" class="btn btn-outline-secondary w-100">
+    <!-- Actions -->
+    <div class="rounded-2xl border border-white/5 bg-slate-900 p-4 mb-3">
+        <p class="text-[10px] font-semibold uppercase tracking-widest text-slate-600 mb-3">Actions</p>
+        <div class="space-y-2">
+
+            <a href="{% url 'member_renew' member.pk %}"
+                class="flex items-center justify-center gap-2 w-full rounded-xl bg-primary-600 hover:bg-primary-500 text-white text-sm font-semibold py-2.5 transition-colors shadow-lg shadow-primary-500/20">
+                <i class="fas fa-sync text-xs"></i> Renew &amp; Record Payment
+            </a>
+
+            <div class="grid grid-cols-2 gap-2">
+                <a href="sms:{{ member.phone }}"
+                    class="flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium py-2.5 transition-colors">
                     <i class="fas fa-sms"></i> SMS
                 </a>
-            </div>
-            <div class="col-6">
-                <a href="https://wa.me/91{{ member.phone }}" target="_blank" class="btn btn-outline-secondary w-100">
+                <a href="https://wa.me/91{{ member.phone }}" target="_blank"
+                    class="flex items-center justify-center gap-2 rounded-xl border border-emerald-500/30 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 text-xs font-medium py-2.5 transition-colors">
                     <i class="fab fa-whatsapp"></i> WhatsApp
                 </a>
             </div>
-            <div class="col-12">
-                <a href="{% url 'member_edit' member.pk %}" class="btn btn-outline-secondary w-100">
-                    <i class="fas fa-edit"></i> Edit Profile
-                </a>
-            </div>
-            <div class="col-12">
-                <a href="{% url 'member_archive' member.pk %}" class="btn btn-outline-secondary w-100"
-                   style="color:#d97706; border-color:#d97706;">
-                    <i class="fas fa-archive"></i> Archive Member
-                </a>
-            </div>
+
+            <a href="{% url 'member_edit' member.pk %}"
+                class="flex items-center justify-center gap-2 w-full rounded-xl border border-white/10 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium py-2.5 transition-colors">
+                <i class="fas fa-edit text-xs"></i> Edit Profile
+            </a>
+
+            <a href="{% url 'member_archive' member.pk %}"
+                class="flex items-center justify-center gap-2 w-full rounded-xl border border-amber-500/20 bg-amber-500/5 hover:bg-amber-500/10 text-amber-400 text-xs font-medium py-2.5 transition-colors">
+                <i class="fas fa-archive text-xs"></i> Archive Member
+            </a>
+
         </div>
     </div>
-</div>
 
-<!-- Send Message -->
-{% comment %} <div class="card">
-    <div class="card-body">
-        <div class="section-label">Send Message</div>
-        <select id="templateSelect" class="form-select mb-2">
-            <option value="">Choose a template…</option>
-            {% for template in templates %}
-            <option value="{{ template.pk }}" data-body="{{ template.body }}">{{ template.name }}</option>
+    <!-- Payment history -->
+    <div class="rounded-2xl border border-white/5 bg-slate-900 overflow-hidden mb-3">
+        <div class="px-4 py-3 border-b border-white/5">
+            <p class="text-[10px] font-semibold uppercase tracking-widest text-slate-600">Payment History</p>
+        </div>
+        <div class="divide-y divide-white/5">
+            {% for payment in payments %}
+            <div class="flex items-center justify-between px-4 py-3">
+                <div>
+                    <span class="font-semibold text-sm text-slate-100">₹{{ payment.amount }}</span>
+                    <span class="ml-2 rounded-full bg-slate-700 text-slate-400 text-[10px] font-medium px-2 py-0.5">{{ payment.method }}</span>
+                    {% if payment.notes %}
+                    <p class="text-[11px] text-slate-600 mt-0.5">{{ payment.notes }}</p>
+                    {% endif %}
+                </div>
+                <div class="flex items-center gap-3">
+                    <span class="text-xs text-slate-600">{{ payment.date|date:"d M Y" }}</span>
+                    <a href="{% url 'payment_edit' payment.pk %}" class="text-slate-500 hover:text-slate-300 transition-colors" title="Edit">
+                        <i class="fas fa-pen text-xs"></i>
+                    </a>
+                    <a href="{% url 'payment_delete_confirm' payment.pk %}" class="text-red-500/60 hover:text-red-400 transition-colors" title="Delete">
+                        <i class="fas fa-trash text-xs"></i>
+                    </a>
+                </div>
+            </div>
+            {% empty %}
+            <div class="px-4 py-4 text-xs text-slate-600">No payments recorded.</div>
             {% endfor %}
-        </select>
-        <textarea id="messagePreview" class="form-control mb-2" rows="3"
-                  placeholder="Select a template to preview the message…"
-                  style="resize:none; font-size:13px;"></textarea>
-        <div class="row g-2">
-            <div class="col-6">
-                <a id="smsLink" href="#" class="btn btn-outline-secondary w-100">
-                    <i class="fas fa-sms"></i> Send SMS
-                </a>
-            </div>
-            <div class="col-6">
-                <a id="whatsappLink" href="#" target="_blank" class="btn btn-success w-100">
-                    <i class="fab fa-whatsapp"></i> WhatsApp
-                </a>
-            </div>
         </div>
     </div>
-</div> {% endcomment %}
 
-<!-- Payment History -->
-<div class="card">
-    <div class="card-body">
-        <div class="section-label">Payment History</div>
-        {% for payment in payments %}
-        <div style="display:flex; justify-content:space-between; align-items:center;
-                    padding:9px 0; border-bottom:1px solid #f1f5f9;">
-            <div>
-                <span style="font-weight:600; color:#0f172a;">₹{{ payment.amount }}</span>
-                <span class="badge bg-light ms-2">{{ payment.method }}</span>
-                {% if payment.notes %}
-                <div style="font-size:11px; color:#94a3b8; margin-top:2px;">{{ payment.notes }}</div>
-                {% endif %}
-            </div>
-            <div style="display:flex; align-items:center; gap:8px;">
-                <span style="font-size:12px; color:#94a3b8;">{{ payment.date|date:"d M Y" }}</span>
-                <a href="{% url 'payment_edit' payment.pk %}" style="color:#64748b; font-size:13px;" title="Edit">
-                    <i class="fas fa-pen"></i>
-                </a>
-                <a href="{% url 'payment_delete_confirm' payment.pk %}" style="color:#dc2626; font-size:13px;" title="Delete">
-                    <i class="fas fa-trash"></i>
-                </a>
-            </div>
+    <!-- Contact info -->
+    <div class="rounded-2xl border border-white/5 bg-slate-900 overflow-hidden mb-3">
+        <div class="px-4 py-3 border-b border-white/5">
+            <p class="text-[10px] font-semibold uppercase tracking-widest text-slate-600">Contact</p>
         </div>
-        {% empty %}
-        <p style="color:#94a3b8; font-size:13px; margin:0;">No payments recorded.</p>
-        {% endfor %}
-    </div>
-</div>
-
-<!-- Contact Info -->
-<div class="card">
-    <div class="card-body">
-        <div class="section-label">Contact</div>
-        <div style="display:flex; flex-direction:column; gap:8px;">
-            <div style="display:flex; gap:8px;">
-                <span style="width:60px; font-size:12px; color:#94a3b8; flex-shrink:0;">Phone</span>
-                <span style="font-size:13px; font-weight:500;">{{ member.phone }}</span>
+        <dl class="divide-y divide-white/5">
+            <div class="flex items-center gap-4 px-4 py-3">
+                <dt class="w-16 text-xs text-slate-600 flex-shrink-0">Phone</dt>
+                <dd class="text-sm font-medium text-slate-200">{{ member.phone }}</dd>
             </div>
             {% if member.address %}
-            <div style="display:flex; gap:8px;">
-                <span style="width:60px; font-size:12px; color:#94a3b8; flex-shrink:0;">Address</span>
-                <span style="font-size:13px;">{{ member.address }}</span>
+            <div class="flex items-start gap-4 px-4 py-3">
+                <dt class="w-16 text-xs text-slate-600 flex-shrink-0">Address</dt>
+                <dd class="text-sm text-slate-300">{{ member.address }}</dd>
             </div>
             {% endif %}
             {% if member.dob %}
-            <div style="display:flex; gap:8px;">
-                <span style="width:60px; font-size:12px; color:#94a3b8; flex-shrink:0;">DOB</span>
-                <span style="font-size:13px;">{{ member.dob|date:"d M Y" }}</span>
+            <div class="flex items-center gap-4 px-4 py-3">
+                <dt class="w-16 text-xs text-slate-600 flex-shrink-0">DOB</dt>
+                <dd class="text-sm text-slate-300">{{ member.dob|date:"d M Y" }}</dd>
             </div>
             {% endif %}
             {% if member.notes %}
-            <div style="display:flex; gap:8px;">
-                <span style="width:60px; font-size:12px; color:#94a3b8; flex-shrink:0;">Notes</span>
-                <span style="font-size:13px;">{{ member.notes }}</span>
+            <div class="flex items-start gap-4 px-4 py-3">
+                <dt class="w-16 text-xs text-slate-600 flex-shrink-0">Notes</dt>
+                <dd class="text-sm text-slate-300">{{ member.notes }}</dd>
             </div>
             {% endif %}
-        </div>
+        </dl>
     </div>
+
 </div>
 
-<!-- Photo Lightbox -->
-<div id="photo-lightbox"
-     onclick="closePhoto()"
-     style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.85);
-            z-index:9999; align-items:center; justify-content:center; cursor:zoom-out;">
-    <img id="lightbox-img" src="" style="max-width:90vw; max-height:85vh; border-radius:12px; object-fit:contain;">
+<!-- Photo lightbox -->
+<div id="photo-lightbox" onclick="closePhoto()"
+    class="hidden fixed inset-0 bg-black/85 z-[9999] items-center justify-center cursor-zoom-out">
+    <img id="lightbox-img" src="" class="max-w-[90vw] max-h-[85vh] rounded-2xl object-contain">
 </div>
-
 {% endblock %}
 
 {% block scripts %}
 <script>
-const memberData = JSON.parse('{{ member_data_json|safe }}');
-
-document.getElementById('templateSelect').addEventListener('change', function() {
-    const body = this.options[this.selectedIndex].dataset.body;
-    const preview = document.getElementById('messagePreview');
-    if (body) {
-        const message = body
-            .replace('{name}', memberData.name)
-            .replace('{days}', memberData.days)
-            .replace('{expiry_date}', memberData.expiry_date)
-            .replace('{amount}', memberData.amount)
-            .replace('{plan}', memberData.plan)
-            .replace('{announcement}', '');
-        preview.value = message;
-        const enc = encodeURIComponent(message);
-        document.getElementById('smsLink').href = `sms:{{ member.phone }}?body=${enc}`;
-        document.getElementById('whatsappLink').href = `https://wa.me/91{{ member.phone }}?text=${enc}`;
-    } else {
-        preview.value = '';
-        document.getElementById('smsLink').href = '#';
-        document.getElementById('whatsappLink').href = '#';
-    }
-});
-
 function openPhoto(src) {
     const lb = document.getElementById('photo-lightbox');
     document.getElementById('lightbox-img').src = src;
-    lb.style.display = 'flex';
+    lb.classList.remove('hidden');
+    lb.classList.add('flex');
 }
 function closePhoto() {
-    document.getElementById('photo-lightbox').style.display = 'none';
+    const lb = document.getElementById('photo-lightbox');
+    lb.classList.add('hidden');
+    lb.classList.remove('flex');
 }
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closePhoto(); });
 </script>

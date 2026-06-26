@@ -287,3 +287,8 @@ def change_password(request):
     else:
         form = PasswordChangeForm(request.user)
     return render(request, 'auth/change_password.html', {'form': form})
+
+
+@login_required
+def profile_view(request):
+    return render(request, 'profile.html', {'user': request.user})

@@ -1,56 +1,60 @@
 {% extends 'base.html' %}
+{% block title %}Delete Payment · GymHub{% endblock %}
 
 {% block content %}
-<div class="page-header">
-    <a href="{% url 'member_detail' member.pk %}" class="btn-back">
-        <i class="fas fa-arrow-left"></i>
-    </a>
-    <h1>Delete Payment</h1>
-</div>
+<div class="mt-6">
 
-<div class="card" style="border-left: 3px solid #dc2626;">
-    <div class="card-body">
-        <div style="font-size:15px; font-weight:600; color:#0f172a; margin-bottom:12px;">
-            Are you sure you want to delete this payment?
+    <div class="flex items-center gap-3 mb-5">
+        <a href="{% url 'member_detail' member.pk %}"
+            class="flex items-center justify-center h-8 w-8 rounded-xl border border-white/10 bg-slate-900 hover:bg-slate-800 transition-colors">
+            <i class="fas fa-arrow-left text-xs text-slate-400"></i>
+        </a>
+        <h1 class="text-lg font-bold text-slate-100">Delete Payment</h1>
+    </div>
+
+    <div class="rounded-2xl border border-red-500/20 bg-slate-900 overflow-hidden">
+        <div class="px-5 py-4 border-b border-white/5">
+            <p class="text-sm font-semibold text-slate-100">Are you sure you want to delete this payment?</p>
+            <p class="text-xs text-slate-500 mt-0.5">This action cannot be undone.</p>
         </div>
-        <div style="display:flex; flex-direction:column; gap:8px; margin-bottom:16px;">
-            <div style="display:flex; gap:8px;">
-                <span style="width:60px; font-size:12px; color:#94a3b8;">Member</span>
-                <span style="font-size:13px; font-weight:500;">{{ member.name }}</span>
+
+        <dl class="divide-y divide-white/5">
+            <div class="flex gap-4 px-5 py-3">
+                <dt class="w-16 text-xs text-slate-600 flex-shrink-0">Member</dt>
+                <dd class="text-sm font-medium text-slate-200">{{ member.name }}</dd>
             </div>
-            <div style="display:flex; gap:8px;">
-                <span style="width:60px; font-size:12px; color:#94a3b8;">Amount</span>
-                <span style="font-size:13px; font-weight:500;">₹{{ payment.amount }}</span>
+            <div class="flex gap-4 px-5 py-3">
+                <dt class="w-16 text-xs text-slate-600 flex-shrink-0">Amount</dt>
+                <dd class="text-sm font-medium text-slate-200">₹{{ payment.amount }}</dd>
             </div>
-            <div style="display:flex; gap:8px;">
-                <span style="width:60px; font-size:12px; color:#94a3b8;">Method</span>
-                <span style="font-size:13px;">{{ payment.method }}</span>
+            <div class="flex gap-4 px-5 py-3">
+                <dt class="w-16 text-xs text-slate-600 flex-shrink-0">Method</dt>
+                <dd class="text-sm text-slate-300">{{ payment.method }}</dd>
             </div>
-            <div style="display:flex; gap:8px;">
-                <span style="width:60px; font-size:12px; color:#94a3b8;">Date</span>
-                <span style="font-size:13px;">{{ payment.date|date:"d M Y" }}</span>
+            <div class="flex gap-4 px-5 py-3">
+                <dt class="w-16 text-xs text-slate-600 flex-shrink-0">Date</dt>
+                <dd class="text-sm text-slate-300">{{ payment.date|date:"d M Y" }}</dd>
             </div>
             {% if payment.notes %}
-            <div style="display:flex; gap:8px;">
-                <span style="width:60px; font-size:12px; color:#94a3b8;">Notes</span>
-                <span style="font-size:13px;">{{ payment.notes }}</span>
+            <div class="flex gap-4 px-5 py-3">
+                <dt class="w-16 text-xs text-slate-600 flex-shrink-0">Notes</dt>
+                <dd class="text-sm text-slate-300">{{ payment.notes }}</dd>
             </div>
             {% endif %}
-        </div>
-        <div class="row g-2">
-            <div class="col-6">
-                <a href="{% url 'member_detail' member.pk %}" class="btn btn-outline-secondary w-100">
-                    Cancel
-                </a>
-            </div>
-            <div class="col-6">
-                <form method="post" action="{% url 'payment_delete' payment.pk %}">
-                    {% csrf_token %}
-                    <button type="submit" class="btn w-100" style="background:#dc2626; color:white;">
-                        <i class="fas fa-trash"></i> Delete
-                    </button>
-                </form>
-            </div>
+        </dl>
+
+        <div class="grid grid-cols-2 gap-2 p-4 border-t border-white/5">
+            <a href="{% url 'member_detail' member.pk %}"
+                class="flex items-center justify-center rounded-xl border border-white/10 bg-slate-800 hover:bg-slate-700 text-slate-300 text-sm font-medium py-2.5 transition-colors">
+                Cancel
+            </a>
+            <form method="post" action="{% url 'payment_delete' payment.pk %}">
+                {% csrf_token %}
+                <button type="submit"
+                    class="w-full flex items-center justify-center gap-1.5 rounded-xl bg-red-600 hover:bg-red-500 text-white text-sm font-semibold py-2.5 transition-colors">
+                    <i class="fas fa-trash text-xs"></i> Delete
+                </button>
+            </form>
         </div>
     </div>
 </div>

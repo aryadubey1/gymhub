@@ -7,3 +7,5 @@ staticfiles/
 venv/
 .DS_Store
 .venv/
+tailwindcss.exe
+static/css/output.css

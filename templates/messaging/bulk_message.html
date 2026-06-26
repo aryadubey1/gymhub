@@ -1,48 +1,50 @@
 {% extends 'base.html' %}
+{% block title %}Bulk Message · GymHub{% endblock %}
 
 {% block content %}
+<div class="mt-6">
 
-<div class="page-header">
-    <h1>Bulk Message</h1>
-</div>
-<div style="margin-top:-8px; margin-bottom:14px;">
-    <a href="{% url 'message_log' %}" style="font-size:12px; color:#64748b; text-decoration:none;">
-        <i class="fas fa-history"></i> View send history
-    </a>
-</div>
+    <div class="flex items-center justify-between mb-1">
+        <h1 class="text-lg font-bold text-slate-100">Bulk Message</h1>
+        <a href="{% url 'message_log' %}" class="flex items-center gap-1.5 text-xs text-slate-500 hover:text-slate-300 transition-colors">
+            <i class="fas fa-history text-[11px]"></i> Send history
+        </a>
+    </div>
+    <p class="text-xs text-slate-600 mb-5">Prepare WhatsApp messages for a group of members.</p>
 
-<!-- Form -->
-<div class="card">
-    <div class="card-body">
+    <!-- Form card -->
+    <div class="rounded-2xl border border-white/5 bg-slate-900 p-5 mb-4">
         <form method="post">
             {% csrf_token %}
 
-            <div class="mb-3">
-                <label for="template" class="form-label">Template</label>
-                <select name="template" id="template" class="form-select" required>
+            <div class="mb-4">
+                <label class="block text-xs font-medium text-slate-400 mb-1.5">Template</label>
+                <select name="template" id="template" required
+                    class="w-full rounded-xl border border-white/10 bg-slate-800 px-4 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-primary-500/60 focus:ring-1 focus:ring-primary-500/30 transition-colors appearance-none">
                     <option value="">Choose a template…</option>
                     {% for t in templates %}
-                    <option value="{{ t.pk }}"
-                            data-category="{{ t.category }}"
-                            {% if selected_template and selected_template.pk == t.pk %}selected{% endif %}>
+                    <option value="{{ t.pk }}" data-category="{{ t.category }}"
+                        {% if selected_template and selected_template.pk == t.pk %}selected{% endif %}>
                         {{ t.name }} — {{ t.get_category_display }}
                     </option>
                     {% endfor %}
                 </select>
             </div>
 
-            <div class="mb-3" id="announcement-field" style="display:none;">
-                <label for="custom_message" class="form-label">
+            <div class="mb-4 hidden" id="announcement-field">
+                <label class="block text-xs font-medium text-slate-400 mb-1.5">
                     Announcement
-                    <span style="color:#94a3b8; font-weight:400;">(replaces {announcement} in template)</span>
+                    <span class="text-slate-600 font-normal">(replaces {announcement} in template)</span>
                 </label>
-                <textarea name="custom_message" id="custom_message" class="form-control" rows="3"
-                    placeholder="e.g. The gym will be closed on Sunday for maintenance.">{{ custom_message }}</textarea>
+                <textarea name="custom_message" id="custom_message" rows="3"
+                    placeholder="e.g. The gym will be closed on Sunday for maintenance."
+                    class="w-full rounded-xl border border-white/10 bg-slate-800 px-4 py-2.5 text-sm text-slate-100 placeholder-slate-600 focus:outline-none focus:border-primary-500/60 focus:ring-1 focus:ring-primary-500/30 transition-colors resize-none">{{ custom_message }}</textarea>
             </div>
 
-            <div class="mb-3">
-                <label for="recipient_group" class="form-label">Recipients</label>
-                <select name="recipient_group" id="recipient_group" class="form-select" required>
+            <div class="mb-5">
+                <label class="block text-xs font-medium text-slate-400 mb-1.5">Recipients</label>
+                <select name="recipient_group" id="recipient_group" required
+                    class="w-full rounded-xl border border-white/10 bg-slate-800 px-4 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-primary-500/60 focus:ring-1 focus:ring-primary-500/30 transition-colors appearance-none">
                     <option value="">Choose recipients…</option>
                     <option value="active"     {% if recipient_group == 'active' %}selected{% endif %}>All Active Members</option>
                     <option value="expiring_3" {% if recipient_group == 'expiring_3' %}selected{% endif %}>Expiring in 3 Days</option>
@@ -52,80 +54,78 @@
                 </select>
             </div>
 
-            <button type="submit" class="btn btn-primary w-100">
-                <i class="fas fa-paper-plane"></i> Prepare Messages
+            <button type="submit"
+                class="w-full rounded-xl bg-primary-600 hover:bg-primary-500 text-white text-sm font-semibold py-2.5 transition-colors shadow-lg shadow-primary-500/20">
+                <i class="fas fa-paper-plane mr-1.5"></i> Prepare Messages
             </button>
         </form>
     </div>
-</div>
 
-{% if prepared_recipients %}
+    {% if prepared_recipients %}
 
-<!-- Progress + Send Next -->
-<div class="card">
-    <div class="card-body">
-        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;">
-            <div style="font-size:13px; font-weight:600; color:#0f172a;">
-                <span id="sent-count">0</span>&thinsp;/&thinsp;{{ recipient_count }} sent
+    <!-- Progress card -->
+    <div class="rounded-2xl border border-white/5 bg-slate-900 p-5 mb-4">
+        <div class="flex items-center justify-between mb-3">
+            <div class="text-sm font-semibold text-slate-200">
+                <span id="sent-count">0</span><span class="text-slate-600"> / {{ recipient_count }} sent</span>
             </div>
-            <button class="btn btn-success btn-sm" id="send-next-btn" onclick="sendNext()">
+            <button id="send-next-btn" onclick="sendNext()"
+                class="flex items-center gap-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold px-4 py-2 transition-colors">
                 <i class="fab fa-whatsapp"></i> Send Next
             </button>
         </div>
-        <div style="background:#e2e8f0; border-radius:999px; height:6px; overflow:hidden;">
-            <div id="progress-bar" style="background:#16a34a; height:100%; width:0%; transition:width 0.3s;"></div>
+        <div class="rounded-full bg-slate-800 h-1.5 overflow-hidden">
+            <div id="progress-bar" class="h-full bg-emerald-500 transition-all duration-300" style="width:0%"></div>
         </div>
-        <div style="font-size:11px; color:#94a3b8; margin-top:6px;">
-            Opens WhatsApp for each member in order. Come back and tap again after each send.
-        </div>
+        <p class="text-[11px] text-slate-600 mt-2">Opens WhatsApp for each member in order. Come back and tap again after each send.</p>
     </div>
-</div>
 
-<!-- Per-member cards -->
-<div class="section-label">{{ recipient_count }} Recipient{{ recipient_count|pluralize }}</div>
+    <!-- Recipient count label -->
+    <p class="text-[10px] font-semibold uppercase tracking-widest text-slate-600 mb-2 px-1">
+        {{ recipient_count }} Recipient{{ recipient_count|pluralize }}
+    </p>
 
-{% for item in prepared_recipients %}
-<div class="card" id="card-{{ item.member.pk }}">
-    <div class="card-body">
+    <!-- Per-member cards -->
+    <div class="space-y-2">
+        {% for item in prepared_recipients %}
+        <div id="card-{{ item.member.pk }}" class="rounded-xl border border-white/5 bg-slate-900 p-4 transition-opacity">
 
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
-            <div style="font-weight:600; font-size:13px; color:#0f172a;">{{ item.member.name }}</div>
-            <span class="badge bg-success" id="badge-{{ item.member.pk }}" style="display:none;">Sent</span>
+            <div class="flex items-center justify-between mb-1">
+                <span class="font-semibold text-sm text-slate-100">{{ item.member.name }}</span>
+                <span id="badge-{{ item.member.pk }}"
+                    class="hidden rounded-full bg-emerald-500/15 text-emerald-400 text-[11px] font-medium px-2.5 py-0.5">
+                    Sent
+                </span>
+            </div>
+
+            <p class="text-xs text-slate-500 mb-3">{{ item.member.phone }}</p>
+
+            <div class="rounded-xl border border-white/5 bg-slate-800 px-3.5 py-3 text-xs text-slate-300 whitespace-pre-wrap font-sans mb-3">{{ item.message }}</div>
+
+            <button id="btn-{{ item.member.pk }}" onclick="sendIndividual({{ forloop.counter0 }})"
+                class="w-full flex items-center justify-center gap-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold py-2 transition-colors">
+                <i class="fab fa-whatsapp"></i> Send on WhatsApp
+            </button>
+
         </div>
-
-        <div style="font-size:12px; color:#64748b; margin-bottom:8px;">{{ item.member.phone }}</div>
-
-        <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px;
-                    padding:10px; font-size:12px; color:#334155;
-                    white-space:pre-wrap; font-family:inherit; margin-bottom:10px;">{{ item.message }}</div>
-
-        <button class="btn btn-success btn-sm w-100"
-                id="btn-{{ item.member.pk }}"
-                onclick="sendIndividual({{ forloop.counter0 }})">
-            <i class="fab fa-whatsapp"></i> Send on WhatsApp
-        </button>
-
+        {% endfor %}
     </div>
+
+    {{ recipients_data|json_script:"recipients-data" }}
+    {% endif %}
+
 </div>
-{% endfor %}
-
-{# Safe XSS-escaped JSON for JS consumption #}
-{{ recipients_data|json_script:"recipients-data" }}
-
-{% endif %}
 {% endblock %}
-
 
 {% block scripts %}
 <script>
-// Uses data-category attribute — not fragile text matching
 function toggleAnnouncementField() {
     const select = document.getElementById('template');
     const opt = select.options[select.selectedIndex];
     const category = opt ? opt.getAttribute('data-category') : '';
     const field = document.getElementById('announcement-field');
     const textarea = document.getElementById('custom_message');
-    field.style.display = category === 'announcement' ? 'block' : 'none';
+    field.classList.toggle('hidden', category !== 'announcement');
     if (category !== 'announcement' && textarea) textarea.value = '';
 }
 document.getElementById('template').addEventListener('change', toggleAnnouncementField);
@@ -146,7 +146,9 @@ function updateProgress() {
     if (sentSet.size >= totalCount) {
         const btn = document.getElementById('send-next-btn');
         btn.disabled = true;
-        btn.innerHTML = '<i class="fas fa-check"></i> All Sent';
+        btn.classList.replace('bg-emerald-600', 'bg-slate-700');
+        btn.classList.replace('hover:bg-emerald-500', 'hover:bg-slate-700');
+        btn.innerHTML = '<i class="fas fa-check mr-1"></i> All Sent';
     }
 }
 
@@ -155,9 +157,14 @@ function markSent(memberId) {
     const card  = document.getElementById('card-'  + memberId);
     const badge = document.getElementById('badge-' + memberId);
     const btn   = document.getElementById('btn-'   + memberId);
-    if (card)  card.style.opacity = '0.55';
-    if (badge) badge.style.display = 'inline-block';
-    if (btn)   { btn.disabled = true; btn.innerHTML = '<i class="fas fa-check"></i> Sent'; }
+    if (card)  card.style.opacity = '0.45';
+    if (badge) badge.classList.remove('hidden');
+    if (btn) {
+        btn.disabled = true;
+        btn.classList.replace('bg-emerald-600', 'bg-slate-700');
+        btn.classList.replace('hover:bg-emerald-500', 'hover:bg-slate-700');
+        btn.innerHTML = '<i class="fas fa-check mr-1"></i> Sent';
+    }
     updateProgress();
 }
 

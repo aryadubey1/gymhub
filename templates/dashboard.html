@@ -1,75 +1,53 @@
 {% extends 'base.html' %}
 
+{% block title %}Dashboard · GymHub{% endblock %}
+
 {% block content %}
-<h1 class="page-header" style="display:block; font-size:18px; font-weight:700; margin-bottom:16px;">Dashboard</h1>
+<h1 class="text-lg font-bold text-slate-100 mb-4">Dashboard</h1>
 
-<div class="row g-2">
+<div class="grid grid-cols-2 gap-3">
 
-    <div class="col-6">
-        <a href="{% url 'member_list' %}?status=active" class="text-decoration-none">
-            <div class="card h-100" style="border-left: 3px solid #2563eb;">
-                <div class="card-body text-center py-3">
-                    <div style="font-size:28px; font-weight:700; color:#2563eb; line-height:1;">{{ total_active }}</div>
-                    <div style="font-size:12px; color:#64748b; margin-top:4px; font-weight:500;">Active Members</div>
-                </div>
-            </div>
-        </a>
-    </div>
+    <a href="{% url 'member_list' %}?status=active" class="block rounded-xl border-l-[3px] border-primary-500 bg-slate-900 border border-white/5 hover:bg-slate-800/80 transition-colors">
+        <div class="text-center py-4">
+            <div class="text-3xl font-bold text-primary-400 leading-none">{{ total_active }}</div>
+            <div class="text-xs text-slate-400 mt-1.5 font-medium">Active members</div>
+        </div>
+    </a>
 
-    <div class="col-6">
-        <a href="{% url 'member_list' %}?status=expiring&days=3" class="text-decoration-none">
-            <div class="card h-100" style="border-left: 3px solid #dc2626;">
-                <div class="card-body text-center py-3">
-                    <div style="font-size:28px; font-weight:700; color:#dc2626; line-height:1;">{{ expiring_1_3 }}</div>
-                    <div style="font-size:12px; color:#64748b; margin-top:4px; font-weight:500;">Expiring 1–3 Days</div>
-                </div>
-            </div>
-        </a>
-    </div>
+    <a href="{% url 'member_list' %}?status=expiring&days=3" class="block rounded-xl border-l-[3px] border-red-500 bg-slate-900 border border-white/5 hover:bg-slate-800/80 transition-colors">
+        <div class="text-center py-4">
+            <div class="text-3xl font-bold text-red-400 leading-none">{{ expiring_1_3 }}</div>
+            <div class="text-xs text-slate-400 mt-1.5 font-medium">Expiring 1–3 days</div>
+        </div>
+    </a>
 
-    <div class="col-6">
-        <a href="{% url 'member_list' %}?status=expiring&days=7" class="text-decoration-none">
-            <div class="card h-100" style="border-left: 3px solid #d97706;">
-                <div class="card-body text-center py-3">
-                    <div style="font-size:28px; font-weight:700; color:#d97706; line-height:1;">{{ expiring_4_7 }}</div>
-                    <div style="font-size:12px; color:#64748b; margin-top:4px; font-weight:500;">Expiring 4–7 Days</div>
-                </div>
-            </div>
-        </a>
-    </div>
+    <a href="{% url 'member_list' %}?status=expiring&days=7" class="block rounded-xl border-l-[3px] border-amber-500 bg-slate-900 border border-white/5 hover:bg-slate-800/80 transition-colors">
+        <div class="text-center py-4">
+            <div class="text-3xl font-bold text-amber-400 leading-none">{{ expiring_4_7 }}</div>
+            <div class="text-xs text-slate-400 mt-1.5 font-medium">Expiring 4–7 days</div>
+        </div>
+    </a>
 
-    <div class="col-6">
-        <a href="{% url 'member_list' %}?status=expiring&days=15" class="text-decoration-none">
-            <div class="card h-100" style="border-left: 3px solid #64748b;">
-                <div class="card-body text-center py-3">
-                    <div style="font-size:28px; font-weight:700; color:#64748b; line-height:1;">{{ expiring_8_15 }}</div>
-                    <div style="font-size:12px; color:#64748b; margin-top:4px; font-weight:500;">Expiring 8–15 Days</div>
-                </div>
-            </div>
-        </a>
-    </div>
+    <a href="{% url 'member_list' %}?status=expiring&days=15" class="block rounded-xl border-l-[3px] border-slate-500 bg-slate-900 border border-white/5 hover:bg-slate-800/80 transition-colors">
+        <div class="text-center py-4">
+            <div class="text-3xl font-bold text-slate-300 leading-none">{{ expiring_8_15 }}</div>
+            <div class="text-xs text-slate-400 mt-1.5 font-medium">Expiring 8–15 days</div>
+        </div>
+    </a>
 
-    <div class="col-6">
-        <a href="{% url 'member_list' %}?status=expired" class="text-decoration-none">
-            <div class="card h-100" style="border-left: 3px solid #dc2626;">
-                <div class="card-body text-center py-3">
-                    <div style="font-size:28px; font-weight:700; color:#dc2626; line-height:1;">{{ overdue }}</div>
-                    <div style="font-size:12px; color:#64748b; margin-top:4px; font-weight:500;">Overdue</div>
-                </div>
-            </div>
-        </a>
-    </div>
+    <a href="{% url 'member_list' %}?status=expired" class="block rounded-xl border-l-[3px] border-red-500 bg-slate-900 border border-white/5 hover:bg-slate-800/80 transition-colors">
+        <div class="text-center py-4">
+            <div class="text-3xl font-bold text-red-400 leading-none">{{ overdue }}</div>
+            <div class="text-xs text-slate-400 mt-1.5 font-medium">Overdue</div>
+        </div>
+    </a>
 
-    <div class="col-6">
-        <a href="{% url 'member_list' %}?status=birthday" class="text-decoration-none">
-            <div class="card h-100" style="border-left: 3px solid #16a34a;">
-                <div class="card-body text-center py-3">
-                    <div style="font-size:28px; font-weight:700; color:#16a34a; line-height:1;">{{ birthdays_today }}</div>
-                    <div style="font-size:12px; color:#64748b; margin-top:4px; font-weight:500;">Birthdays Today</div>
-                </div>
-            </div>
-        </a>
-    </div>
+    <a href="{% url 'member_list' %}?status=birthday" class="block rounded-xl border-l-[3px] border-emerald-500 bg-slate-900 border border-white/5 hover:bg-slate-800/80 transition-colors">
+        <div class="text-center py-4">
+            <div class="text-3xl font-bold text-emerald-400 leading-none">{{ birthdays_today }}</div>
+            <div class="text-xs text-slate-400 mt-1.5 font-medium">Birthdays today</div>
+        </div>
+    </a>
 
 </div>
 {% endblock %}
